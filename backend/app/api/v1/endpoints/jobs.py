@@ -32,6 +32,10 @@ async def run_upload_pipeline(job_id: str, file_path: str, filename: str, invest
     pipeline = UploadPipeline()
     await pipeline.process_file_path(file_path, filename, job_id, investigator_id)
 
+# Additional enforcement (keeps existing logic intact)
+ALLOWED_TYPES = {"application/pdf", "image/png", "image/jpeg", "text/plain", "application/zip"}
+MAX_UPLOAD_MB = 100  # can be moved to settings if desired
+
 # --- Endpoints ---
 
 @router.post("/jobs/url", response_model=JobStatusResponse)
@@ -76,16 +80,31 @@ async def submit_local_file(
         validation_result = validator.validate_upload_file(file)
         if not validation_result["valid"]:
             raise HTTPException(status_code=400, detail=validation_result["error"])
+
+        # Enforce MIME type and stream with size guard
+        if file.content_type not in ALLOWED_TYPES:
+            raise HTTPException(status_code=400, detail=f"Unsupported type: {file.content_type}")
         
         job_id = str(uuid.uuid4())
-        
-        # Save temp file
+
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=f"_{file.filename}")
         try:
+            written = 0
             with open(temp_file.name, 'wb') as f:
-                shutil.copyfileobj(file.file, f)
+                while True:
+                    chunk = file.file.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    written += len(chunk)
+                    if written > MAX_UPLOAD_MB * 1024 * 1024:
+                        os.unlink(temp_file.name)
+                        raise HTTPException(status_code=413, detail=f"File exceeds {MAX_UPLOAD_MB}MB")
+                    f.write(chunk)
+        except HTTPException:
+            raise
         except Exception:
-            os.unlink(temp_file.name)
+            if os.path.exists(temp_file.name):
+                os.unlink(temp_file.name)
             raise HTTPException(status_code=500, detail="Failed to save uploaded file")
 
         job = Job(
@@ -104,7 +123,8 @@ async def submit_local_file(
             filename=file.filename, investigator_id=investigator_id, case_number=case_number
         )
         return job
-    except HTTPException: raise
+    except HTTPException: 
+        raise
     except Exception as e:
         logger.error(f"Upload job submission failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -162,7 +182,7 @@ async def generate_pdf_endpoint(job_id: str, db: Session = Depends(get_db)):
 @router.get("/analytics")
 async def get_analytics(period: str = "7d", db: Session = Depends(get_db)):
     now = datetime.utcnow()
-    start_date = now - timedelta(days=7) # Simplify for now
+    start_date = now - timedelta(days=7)
     
     total = db.query(Job).filter(Job.created_at >= start_date).count()
     completed = db.query(Job).filter(Job.created_at >= start_date, Job.status == 'completed').count()
