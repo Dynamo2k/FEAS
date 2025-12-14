@@ -166,9 +166,7 @@ const AnalyticsPage = () => {
     () => forensicAPI.getAnalytics(period),
     {
       refetchInterval: 30000,
-      onError: () => {
-        return { total_jobs: 0, completed_jobs: 0, pending_jobs: 0, failed_jobs: 0 };
-      }
+      placeholderData: { total_jobs: 0, completed_jobs: 0, pending_jobs: 0, failed_jobs: 0 }
     }
   );
 

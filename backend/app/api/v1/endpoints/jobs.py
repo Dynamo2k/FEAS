@@ -206,7 +206,16 @@ async def generate_pdf_endpoint(job_id: str, db: Session = Depends(get_db)):
 @router.get("/analytics")
 async def get_analytics(period: str = "7d", db: Session = Depends(get_db)):
     now = datetime.utcnow()
-    start_date = now - timedelta(days=7)
+    
+    # Parse period parameter
+    if period == "24h":
+        start_date = now - timedelta(hours=24)
+    elif period == "30d":
+        start_date = now - timedelta(days=30)
+    elif period == "90d":
+        start_date = now - timedelta(days=90)
+    else:  # default to 7d
+        start_date = now - timedelta(days=7)
     
     total = db.query(Job).filter(Job.created_at >= start_date).count()
     completed = db.query(Job).filter(Job.created_at >= start_date, Job.status == 'completed').count()

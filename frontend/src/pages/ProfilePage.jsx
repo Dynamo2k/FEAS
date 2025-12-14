@@ -269,6 +269,7 @@ const ProfilePage = () => {
 
   const initials = formData.name
     .split(' ')
+    .filter(n => n)
     .map(n => n[0])
     .join('')
     .toUpperCase()

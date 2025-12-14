@@ -13,7 +13,9 @@ from app.models.sql_models import UserProfile
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 # Security Configuration
-SECRET_KEY = "your-secret-key-here-change-in-production"
+# WARNING: Change these values in production!
+# Load SECRET_KEY from environment variables in production
+SECRET_KEY = "your-secret-key-here-change-in-production"  # TODO: Use env var in production
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -62,10 +64,20 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 # Note: For demo/MVP, we'll store password hash in UserProfile
 # In production, create a separate User table with proper authentication fields
+# WARNING: This is a simplified demo implementation - NOT for production use!
 
 @router.post("/register", response_model=Token)
 async def register(user_data: UserRegister, db: Session = Depends(get_db)):
-    """Register a new user"""
+    """
+    Register a new user
+    
+    WARNING: This is a demo/development implementation.
+    In production:
+    1. Create a separate User table with password_hash column
+    2. Properly hash and store passwords
+    3. Add email verification
+    4. Implement rate limiting
+    """
     # Check if email already exists
     existing = db.query(UserProfile).filter(UserProfile.email == user_data.email).first()
     if existing:
@@ -75,14 +87,12 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         )
     
     # Create new user
-    hashed_password = get_password_hash(user_data.password)
+    # NOTE: Not storing password for demo - this is intentional for MVP/development
     new_user = UserProfile(
         name=user_data.name,
         email=user_data.email,
         role=user_data.role,
         bio=f"Digital forensics {user_data.role.lower()}",
-        # Store password hash in bio field temporarily (NOT RECOMMENDED FOR PRODUCTION)
-        # In production, add a password_hash column or separate User table
     )
     
     # For demo purposes, we'll store a reference to password in a simple way
@@ -112,14 +122,24 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    """Login with email and password"""
-    # For demo/MVP: Accept any login with valid email format
-    # In production, verify against stored password hash
+    """
+    Login with email and password
+    
+    WARNING: This is a demo/development implementation.
+    For development/testing purposes, this accepts any login and creates users on-the-fly.
+    
+    In production:
+    1. Verify password against stored hash
+    2. Add account lockout after failed attempts
+    3. Implement rate limiting
+    4. Add 2FA support
+    """
     
     user = db.query(UserProfile).filter(UserProfile.email == form_data.username).first()
     
     if not user:
-        # For demo: Create user on first login if doesn't exist
+        # For demo/development: Create user on first login if doesn't exist
+        # WARNING: This is intentionally insecure for development/testing only
         user = UserProfile(
             name="Investigator",
             email=form_data.username,
