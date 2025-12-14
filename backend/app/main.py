@@ -15,11 +15,13 @@ from app.db.session import get_db
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize database on startup"""
+    from app.db.session import SessionLocal
+    
     # Initialize database tables
     init_db()
     
     # Create default admin user
-    db = next(get_db())
+    db = SessionLocal()
     try:
         from app.db.init_db import create_default_admin
         create_default_admin(db)

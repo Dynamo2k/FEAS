@@ -86,8 +86,9 @@ class Settings(BaseSettings):
     CHAIN_OF_CUSTODY_LOG_PATH: str = "./chain_of_custody.log"
     
     # --- Default Admin Credentials ---
+    # WARNING: Change these in production! These are development defaults only.
     DEFAULT_ADMIN_EMAIL: str = "admin@feas.local"
-    DEFAULT_ADMIN_PASSWORD: str = "admin123"  # Will be hashed on first run
+    DEFAULT_ADMIN_PASSWORD: str = "admin123"  # CHANGE THIS IN PRODUCTION!
 
     model_config = {
         "env_file": ".env",

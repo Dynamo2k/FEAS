@@ -68,7 +68,7 @@ class UserProfile(Base):
     __tablename__ = "user_profiles"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     name = Column(String, default="Investigator")
     role = Column(String, default="Senior Analyst")
     bio = Column(String, default="Digital forensics specialist.")

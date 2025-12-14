@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime, timedelta
+from jose import JWTError, jwt
 
 from app.db.session import get_db
 from app.models.sql_models import User, UserProfile
@@ -41,8 +42,6 @@ class UserResponse(BaseModel):
 # Helper to get current user from token
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     """Get current authenticated user from JWT token"""
-    from jose import JWTError, jwt
-    
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

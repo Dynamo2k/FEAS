@@ -17,14 +17,14 @@ def init_db(db: Session = None) -> None:
     """
     Initialize database:
     1. Create all tables
-    2. Create default admin user if not exists
+    2. Create default admin user if session provided
     """
     # Create all tables
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created successfully")
     
     # Create default admin user if database session is provided
-    if db:
+    if db is not None:
         create_default_admin(db)
 
 
