@@ -20,6 +20,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import HelpPage from './pages/HelpPage';
+import DocsPage from './pages/DocsPage';
 
 // Styles
 import GlobalStyles from './styles/GlobalStyles';
@@ -63,7 +65,8 @@ function App() {
           <Route path="/analytics" element={<ProtectedRoute><Layout><AnalyticsPage /></Layout></ProtectedRoute>} />
           <Route path="/chain-of-custody" element={<ProtectedRoute><Layout><PlaceholderPage title="Global Chain of Custody" /></Layout></ProtectedRoute>} />
           <Route path="/security" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
-          <Route path="/help" element={<ProtectedRoute><Layout><PlaceholderPage title="Documentation" /></Layout></ProtectedRoute>} />
+          <Route path="/help" element={<ProtectedRoute><Layout><HelpPage /></Layout></ProtectedRoute>} />
+          <Route path="/docs" element={<ProtectedRoute><Layout><DocsPage /></Layout></ProtectedRoute>} />
           
           {/* 404 Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />

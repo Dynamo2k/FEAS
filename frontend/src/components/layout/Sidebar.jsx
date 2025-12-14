@@ -13,6 +13,7 @@ import {
   FaHistory,
   FaChartLine,
   FaQuestionCircle,
+  FaBook,
   FaTimes
 } from 'react-icons/fa';
 import { forensicAPI } from '../../services/api';
@@ -197,7 +198,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       items: [
         { path: '/settings', icon: <FaCog />, text: 'Settings' },
         { path: '/security', icon: <FaShieldAlt />, text: 'Security' },
-        { path: '/help', icon: <FaQuestionCircle />, text: 'Help & Docs' },
+        { path: '/help', icon: <FaQuestionCircle />, text: 'Help' },
+        { path: '/docs', icon: <FaBook />, text: 'Documentation' },
       ]
     }
   ];
