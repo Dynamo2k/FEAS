@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch, FaBell, FaUserCircle, FaSignOutAlt, FaUser } from 'react-icons/fa';
@@ -60,11 +60,12 @@ const UserProfile = styled.div`
   gap: 0.75rem;
   cursor: pointer;
   position: relative;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background 0.2s ease;
   
   &:hover {
-    .dropdown {
-      display: block;
-    }
+    background: ${({ theme }) => theme.background};
   }
 `;
 
@@ -76,7 +77,7 @@ const UserInfo = styled.div`
 `;
 
 const Dropdown = styled.div`
-  display: none;
+  display: ${({ isOpen }) => isOpen ? 'block' : 'none'};
   position: absolute;
   top: 100%;
   right: 0;
@@ -114,14 +115,36 @@ const Header = () => {
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const logout = useAuthStore((state) => state.logout);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleProfileClick = () => {
+    setDropdownOpen(false);
     navigate('/profile');
   };
 
   const handleLogout = () => {
+    setDropdownOpen(false);
     logout();
     navigate('/login');
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
   };
 
   const displayName = user?.name || 'Investigator';
@@ -141,14 +164,14 @@ const Header = () => {
           <FaBell />
         </IconButton>
         
-        <UserProfile>
+        <UserProfile ref={dropdownRef} onClick={toggleDropdown}>
           <UserInfo>
             <span className="name">{displayName}</span>
             <span className="role">{displayRole}</span>
           </UserInfo>
           <FaUserCircle size={32} color="#3b82f6" />
           
-          <Dropdown className="dropdown">
+          <Dropdown isOpen={dropdownOpen}>
             <DropdownItem onClick={handleProfileClick}>
               <FaUser />
               View Profile

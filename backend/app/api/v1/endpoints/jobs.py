@@ -58,13 +58,26 @@ async def submit_url_job(
         
         ForensicLogger.log_acquisition(job_id=job_id, source='url', investigator_id=job_data.investigator_id, url=str(job_data.url))
         
-        process_url_job.delay(
-            job_id=job_id, 
-            url=str(job_data.url),
-            investigator_id=job_data.investigator_id, 
-            case_number=job_data.case_number
-        )
+        try:
+            process_url_job.delay(
+                job_id=job_id, 
+                url=str(job_data.url),
+                investigator_id=job_data.investigator_id, 
+                case_number=job_data.case_number
+            )
+        except Exception as celery_error:
+            # Update job status to failed if Celery/Redis is not available
+            logger.error(f"Celery task submission failed: {str(celery_error)}")
+            job.status = "failed"
+            job.stage = "Task submission failed - Celery worker may not be running"
+            db.commit()
+            raise HTTPException(
+                status_code=503, 
+                detail="Background processing service unavailable. Please ensure Celery worker is running."
+            )
         return job
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"URL job submission failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -135,13 +148,24 @@ async def submit_local_file(
         ForensicLogger.log_acquisition(job_id=job_id, source='local_upload', investigator_id=investigator_id, filename=file.filename)
         
         # Pass the FILE PATH to the task, not the content
-        process_upload_job.delay(
-            job_id=job_id, 
-            file_path=temp_file.name, 
-            filename=file.filename, 
-            investigator_id=investigator_id, 
-            case_number=case_number
-        )
+        try:
+            process_upload_job.delay(
+                job_id=job_id, 
+                file_path=temp_file.name, 
+                filename=file.filename, 
+                investigator_id=investigator_id, 
+                case_number=case_number
+            )
+        except Exception as celery_error:
+            # Update job status to failed if Celery/Redis is not available
+            logger.error(f"Celery task submission failed: {str(celery_error)}")
+            job.status = "failed"
+            job.stage = "Task submission failed - Celery worker may not be running"
+            db.commit()
+            raise HTTPException(
+                status_code=503, 
+                detail="Background processing service unavailable. Please ensure Celery worker is running."
+            )
         return job
     except HTTPException: 
         raise
