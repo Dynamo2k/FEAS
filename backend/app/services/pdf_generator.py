@@ -271,6 +271,12 @@ class PDFReportGenerator:
             
             investigator_id = job_details.chain_of_custody[0].investigator_id if job_details.chain_of_custody else "N/A"
             
+            # Helper function to truncate long URLs
+            def truncate_url(url, max_length=60):
+                if url and len(url) > max_length:
+                    return url[:max_length] + "..."
+                return url or "N/A"
+            
             case_data = [
                 ["Job ID:", job_details.job_id],
                 ["Investigator ID:", investigator_id],
@@ -281,7 +287,7 @@ class PDFReportGenerator:
             ]
             
             if job_details.original_url:
-                case_data.append(["Original URL:", job_details.original_url[:60] + "..." if len(job_details.original_url or "") > 60 else job_details.original_url])
+                case_data.append(["Original URL:", truncate_url(job_details.original_url)])
             
             story.append(PDFReportGenerator._create_info_table(case_data))
             
@@ -310,9 +316,12 @@ class PDFReportGenerator:
             
             # Hash verification notice
             story.append(Spacer(1, 10))
-            notice_text = """<font color="#276749"><b>✓ INTEGRITY NOTICE:</b></font> The SHA-256 hash above serves as the unique digital fingerprint 
-            for this evidence. Any modification to the original file will produce a different hash value, 
-            indicating potential tampering. Verify this hash against the original to confirm evidence integrity."""
+            notice_text = (
+                '<font color="#276749"><b>✓ INTEGRITY NOTICE:</b></font> The SHA-256 hash above '
+                'serves as the unique digital fingerprint for this evidence. Any modification to '
+                'the original file will produce a different hash value, indicating potential '
+                'tampering. Verify this hash against the original to confirm evidence integrity.'
+            )
             story.append(Paragraph(notice_text, styles['BodyText']))
             
             # ==================== CHAIN OF CUSTODY ====================
@@ -385,10 +394,12 @@ class PDFReportGenerator:
             story.append(PDFReportGenerator._create_section_header_table("CERTIFICATION", "✅"))
             story.append(Spacer(1, 10))
             
-            cert_text = """This report certifies that the digital evidence described herein has been acquired, 
-            processed, and documented in accordance with forensic best practices. The chain of custody 
-            has been maintained throughout the acquisition process, and all digital fingerprints have 
-            been recorded for integrity verification purposes."""
+            cert_text = (
+                'This report certifies that the digital evidence described herein has been acquired, '
+                'processed, and documented in accordance with forensic best practices. The chain of custody '
+                'has been maintained throughout the acquisition process, and all digital fingerprints have '
+                'been recorded for integrity verification purposes.'
+            )
             story.append(Paragraph(cert_text, styles['BodyText']))
             
             story.append(Spacer(1, 20))
@@ -420,11 +431,13 @@ class PDFReportGenerator:
             
             # ==================== DISCLAIMER ====================
             story.append(Spacer(1, 25))
-            disclaimer_text = """<font size="8" color="#718096"><b>DISCLAIMER:</b> This forensic evidence report is generated 
-            automatically by the Forensic Evidence Acquisition System (FEAS). The information contained herein is intended 
-            for law enforcement and authorized personnel only. Unauthorized distribution, modification, or use of this 
-            report may be subject to legal penalties. The integrity of this evidence should be verified using the 
-            SHA-256 hash provided above before use in any legal proceedings.</font>"""
+            disclaimer_text = (
+                '<font size="8" color="#718096"><b>DISCLAIMER:</b> This forensic evidence report is generated '
+                'automatically by the Forensic Evidence Acquisition System (FEAS). The information contained herein '
+                'is intended for law enforcement and authorized personnel only. Unauthorized distribution, modification, '
+                'or use of this report may be subject to legal penalties. The integrity of this evidence should be '
+                'verified using the SHA-256 hash provided above before use in any legal proceedings.</font>'
+            )
             story.append(Paragraph(disclaimer_text, styles['Normal']))
             
             # Build PDF
@@ -535,15 +548,20 @@ class PDFReportGenerator:
             story.append(Spacer(1, 10))
             
             if is_match:
-                result_text = """<font color="#276749"><b>VERIFIED:</b></font> The current hash of the evidence file 
-                matches the original hash recorded during acquisition. This confirms that the evidence has not been 
-                altered, modified, or tampered with since it was collected. The integrity of this evidence is intact 
-                and it may be considered authentic for forensic purposes."""
+                result_text = (
+                    '<font color="#276749"><b>VERIFIED:</b></font> The current hash of the evidence file '
+                    'matches the original hash recorded during acquisition. This confirms that the evidence '
+                    'has not been altered, modified, or tampered with since it was collected. The integrity '
+                    'of this evidence is intact and it may be considered authentic for forensic purposes.'
+                )
             else:
-                result_text = """<font color="#c53030"><b>WARNING:</b></font> The current hash of the evidence file 
-                DOES NOT match the original hash recorded during acquisition. This indicates that the evidence may 
-                have been altered, corrupted, or tampered with since collection. This evidence should be treated 
-                with caution and may not be suitable for legal proceedings without further investigation."""
+                result_text = (
+                    '<font color="#c53030"><b>WARNING:</b></font> The current hash of the evidence file '
+                    'DOES NOT match the original hash recorded during acquisition. This indicates that the '
+                    'evidence may have been altered, corrupted, or tampered with since collection. This '
+                    'evidence should be treated with caution and may not be suitable for legal proceedings '
+                    'without further investigation.'
+                )
             
             story.append(Paragraph(result_text, styles['BodyText']))
             
