@@ -223,6 +223,9 @@ const SettingsPage = () => {
   const [retentionDays, setRetentionDays] = useState(30);
   const [apiUrl, setApiUrl] = useState(process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1');
   const user = useAuthStore((state) => state.user);
+  
+  // Memoize login time to prevent re-rendering on every render
+  const [loginTime] = useState(() => new Date().toLocaleString());
 
   const handleSave = () => {
     // Save settings to localStorage
@@ -348,9 +351,21 @@ const SettingsPage = () => {
             <SecurityItem>
               <SecurityInfo>
                 <SecurityLabel>Account Status</SecurityLabel>
-                <SecurityDesc>Your account is active and in good standing</SecurityDesc>
+                <SecurityDesc>
+                  {user?.email ? `Logged in as ${user.email}` : 'Account active'}
+                </SecurityDesc>
               </SecurityInfo>
               <StatusBadge status="active"><FaCheckCircle /> Active</StatusBadge>
+            </SecurityItem>
+            
+            <SecurityItem>
+              <SecurityInfo>
+                <SecurityLabel>User Role</SecurityLabel>
+                <SecurityDesc>
+                  {user?.role || 'Analyst'} {user?.is_admin && '(Administrator)'}
+                </SecurityDesc>
+              </SecurityInfo>
+              <StatusBadge status="active"><FaCheckCircle /> Verified</StatusBadge>
             </SecurityItem>
           </SettingsSection>
 
@@ -370,7 +385,7 @@ const SettingsPage = () => {
             <SecurityItem>
               <SecurityInfo>
                 <SecurityLabel>Last Login</SecurityLabel>
-                <SecurityDesc>Current session started at {new Date().toLocaleString()}</SecurityDesc>
+                <SecurityDesc>Current session started at {loginTime}</SecurityDesc>
               </SecurityInfo>
               <StatusBadge status="active"><FaCheckCircle /> Active</StatusBadge>
             </SecurityItem>

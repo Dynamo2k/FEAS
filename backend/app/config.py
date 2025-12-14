@@ -86,9 +86,13 @@ class Settings(BaseSettings):
     CHAIN_OF_CUSTODY_LOG_PATH: str = "./chain_of_custody.log"
     
     # --- Default Admin Credentials ---
-    # WARNING: Change these in production! These are development defaults only.
+    # SECURITY WARNING: These are development defaults only!
+    # In production, set these via environment variables:
+    #   DEFAULT_ADMIN_EMAIL=your-secure-email@domain.com
+    #   DEFAULT_ADMIN_PASSWORD=<secure-random-password>
+    # The admin user is only created if no admin exists in the database.
     DEFAULT_ADMIN_EMAIL: str = "admin@feas.local"
-    DEFAULT_ADMIN_PASSWORD: str = "admin123"  # CHANGE THIS IN PRODUCTION!
+    DEFAULT_ADMIN_PASSWORD: str = "admin123"
 
     model_config = {
         "env_file": ".env",
