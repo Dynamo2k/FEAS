@@ -6,6 +6,9 @@ import { useThemeStore } from './store/themeStore';
 // Layout
 import Layout from './components/layout/Layout';
 
+// Auth
+import ProtectedRoute from './components/common/ProtectedRoute';
+
 // Pages
 import Dashboard from './pages/Dashboard';
 import SubmissionPage from './pages/SubmissionPage';
@@ -43,27 +46,27 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
-          {/* Main App Routes (with Layout) */}
-          <Route path="/" element={<Layout><Navigate to="/dashboard" replace /></Layout>} />
-          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/submit" element={<Layout><SubmissionPage /></Layout>} />
+          {/* Main App Routes (with Layout and Protected) */}
+          <Route path="/" element={<ProtectedRoute><Layout><Navigate to="/dashboard" replace /></Layout></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+          <Route path="/submit" element={<ProtectedRoute><Layout><SubmissionPage /></Layout></ProtectedRoute>} />
           
           {/* Monitor and Database point to the same list for now */}
-          <Route path="/monitor" element={<Layout><JobMonitorPage /></Layout>} />
-          <Route path="/database" element={<Layout><JobMonitorPage /></Layout>} />
+          <Route path="/monitor" element={<ProtectedRoute><Layout><JobMonitorPage /></Layout></ProtectedRoute>} />
+          <Route path="/database" element={<ProtectedRoute><Layout><JobMonitorPage /></Layout></ProtectedRoute>} />
           
-          <Route path="/evidence/:jobId" element={<Layout><EvidenceDetailPage /></Layout>} />
-          <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
-          <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
+          <Route path="/evidence/:jobId" element={<ProtectedRoute><Layout><EvidenceDetailPage /></Layout></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Layout><ProfilePage /></Layout></ProtectedRoute>} />
 
           {/* Feature Pages */}
-          <Route path="/analytics" element={<Layout><AnalyticsPage /></Layout>} />
-          <Route path="/chain-of-custody" element={<Layout><PlaceholderPage title="Global Chain of Custody" /></Layout>} />
-          <Route path="/security" element={<Layout><PlaceholderPage title="Security Audit" /></Layout>} />
-          <Route path="/help" element={<Layout><PlaceholderPage title="Documentation" /></Layout>} />
+          <Route path="/analytics" element={<ProtectedRoute><Layout><AnalyticsPage /></Layout></ProtectedRoute>} />
+          <Route path="/chain-of-custody" element={<ProtectedRoute><Layout><PlaceholderPage title="Global Chain of Custody" /></Layout></ProtectedRoute>} />
+          <Route path="/security" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
+          <Route path="/help" element={<ProtectedRoute><Layout><PlaceholderPage title="Documentation" /></Layout></ProtectedRoute>} />
           
           {/* 404 Fallback */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
     </ThemeProvider>

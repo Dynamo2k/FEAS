@@ -93,11 +93,10 @@ async def submit_local_file(
         job_id = str(uuid.uuid4())
 
         # Save to temp file
-        # Note: In a Docker setup, ensure this path is accessible by the worker (e.g., use a shared volume like /app/storage/temp)
-        # For now, we use the system temp which works for local non-containerized execution or if /tmp is shared.
-        # NEW CODE (Works in Docker)
-# Ensure a temp directory exists within your mounted storage
-        temp_dir = "/app/storage/temp_uploads"
+        # Use the LOCAL_STORAGE_PATH from settings for better portability
+        from app.config import settings
+        storage_base = os.path.abspath(settings.LOCAL_STORAGE_PATH)
+        temp_dir = os.path.join(storage_base, "temp_uploads")
         os.makedirs(temp_dir, exist_ok=True)
         
         temp_file = tempfile.NamedTemporaryFile(
