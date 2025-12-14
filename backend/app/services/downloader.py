@@ -19,28 +19,48 @@ class URLDownloader:
     def __init__(self):
         self.allowed_domains = settings.ALLOWED_URL_DOMAINS
         
+    def _is_domain_match(self, domain: str, allowed_domain: str) -> bool:
+        """Securely check if domain matches or is a subdomain of allowed domain"""
+        # Remove www. prefix
+        if domain.startswith("www."):
+            domain = domain[4:]
+        
+        # Exact match
+        if domain == allowed_domain:
+            return True
+        
+        # Subdomain match (must end with .allowed_domain)
+        if domain.endswith("." + allowed_domain):
+            return True
+        
+        return False
+    
     def validate_url(self, url: str) -> bool:
-        """Validate URL against whitelist"""
+        """Validate URL against whitelist using secure domain matching"""
         parsed = urlparse(url)
         domain = parsed.netloc.lower()
         
         if domain.startswith("www."):
             domain = domain[4:]
             
-        return any(allowed in domain for allowed in self.allowed_domains)
+        return any(self._is_domain_match(domain, allowed) for allowed in self.allowed_domains)
     
     def detect_platform(self, url: str) -> Optional[Platform]:
         """Detect which platform the URL belongs to"""
         parsed = urlparse(url)
         domain = parsed.netloc.lower()
         
-        if "twitter.com" in domain or "x.com" in domain:
+        if domain.startswith("www."):
+            domain = domain[4:]
+        
+        # Use secure domain matching
+        if self._is_domain_match(domain, "twitter.com") or self._is_domain_match(domain, "x.com"):
             return Platform.TWITTER
-        elif "youtube.com" in domain or "youtu.be" in domain:
+        elif self._is_domain_match(domain, "youtube.com") or self._is_domain_match(domain, "youtu.be"):
             return Platform.YOUTUBE
-        elif "facebook.com" in domain or "fb.watch" in domain or "fb.com" in domain:
+        elif self._is_domain_match(domain, "facebook.com") or self._is_domain_match(domain, "fb.watch") or self._is_domain_match(domain, "fb.com"):
             return Platform.FACEBOOK
-        elif "instagram.com" in domain:
+        elif self._is_domain_match(domain, "instagram.com"):
             return Platform.INSTAGRAM
         return None
     

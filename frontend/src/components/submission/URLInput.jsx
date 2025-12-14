@@ -285,29 +285,57 @@ const URLInput = ({ onSubmit, isLoading }) => {
   const [error, setError] = useState('');
   const [detectedPlatform, setDetectedPlatform] = useState(null);
 
-  const detectPlatform = (url) => {
-    if (url.includes('twitter.com') || url.includes('x.com')) {
-      return 'twitter';
+  // Secure domain matching helper - checks exact match or valid subdomain
+  const isDomainMatch = (hostname, allowedDomain) => {
+    // Remove www. prefix
+    let domain = hostname.toLowerCase();
+    if (domain.startsWith('www.')) {
+      domain = domain.substring(4);
     }
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      return 'youtube';
+    
+    // Exact match
+    if (domain === allowedDomain) {
+      return true;
     }
-    if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.com')) {
-      return 'facebook';
+    
+    // Subdomain match (must end with .allowedDomain)
+    if (domain.endsWith('.' + allowedDomain)) {
+      return true;
     }
-    if (url.includes('instagram.com')) {
-      return 'instagram';
+    
+    return false;
+  };
+
+  const detectPlatform = (inputUrl) => {
+    try {
+      const urlObj = new URL(inputUrl);
+      const hostname = urlObj.hostname.toLowerCase();
+      
+      if (isDomainMatch(hostname, 'twitter.com') || isDomainMatch(hostname, 'x.com')) {
+        return 'twitter';
+      }
+      if (isDomainMatch(hostname, 'youtube.com') || isDomainMatch(hostname, 'youtu.be')) {
+        return 'youtube';
+      }
+      if (isDomainMatch(hostname, 'facebook.com') || isDomainMatch(hostname, 'fb.watch') || isDomainMatch(hostname, 'fb.com')) {
+        return 'facebook';
+      }
+      if (isDomainMatch(hostname, 'instagram.com')) {
+        return 'instagram';
+      }
+    } catch {
+      // Invalid URL, return web as fallback
     }
     return 'web';
   };
 
-  const validateURL = (url) => {
+  const validateURL = (inputUrl) => {
     try {
-      const urlObj = new URL(url);
-      const domain = urlObj.hostname.toLowerCase();
+      const urlObj = new URL(inputUrl);
+      const hostname = urlObj.hostname.toLowerCase();
       
       const allowedDomains = ['twitter.com', 'x.com', 'youtube.com', 'youtu.be', 'facebook.com', 'fb.watch', 'fb.com', 'instagram.com'];
-      if (!allowedDomains.some(d => domain.includes(d))) {
+      if (!allowedDomains.some(d => isDomainMatch(hostname, d))) {
         return 'Only Twitter/X, YouTube, Facebook, and Instagram URLs are supported';
       }
       
