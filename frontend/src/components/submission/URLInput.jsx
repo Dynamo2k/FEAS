@@ -4,6 +4,8 @@ import {
   FaGlobe, 
   FaTwitter, 
   FaYoutube, 
+  FaFacebook,
+  FaInstagram,
   FaLink,
   FaSpinner,
   FaShieldAlt 
@@ -138,14 +140,20 @@ const PlatformIndicator = styled.div`
   padding: 0.25rem 0.75rem;
   background: ${({ platform, theme }) => 
     platform === 'twitter' ? '#1DA1F2' : 
-    platform === 'youtube' ? '#FF0000' : theme.primary}20;
+    platform === 'youtube' ? '#FF0000' : 
+    platform === 'facebook' ? '#1877F2' :
+    platform === 'instagram' ? '#E4405F' : theme.primary}20;
   border: 1px solid ${({ platform, theme }) => 
     platform === 'twitter' ? '#1DA1F2' : 
-    platform === 'youtube' ? '#FF0000' : theme.primary}40;
+    platform === 'youtube' ? '#FF0000' : 
+    platform === 'facebook' ? '#1877F2' :
+    platform === 'instagram' ? '#E4405F' : theme.primary}40;
   border-radius: 4px;
   color: ${({ platform, theme }) => 
     platform === 'twitter' ? '#1DA1F2' : 
-    platform === 'youtube' ? '#FF0000' : theme.primary};
+    platform === 'youtube' ? '#FF0000' : 
+    platform === 'facebook' ? '#1877F2' :
+    platform === 'instagram' ? '#E4405F' : theme.primary};
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
@@ -219,13 +227,22 @@ const PlatformTag = styled.span`
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.75rem;
-  background: ${({ platform, theme }) => 
-    platform === 'twitter' ? '#1DA1F2' : '#FF0000'}20;
-  border: 1px solid ${({ platform, theme }) => 
-    platform === 'twitter' ? '#1DA1F2' : '#FF0000'}40;
+  background: ${({ platform }) => 
+    platform === 'twitter' ? '#1DA1F2' : 
+    platform === 'youtube' ? '#FF0000' :
+    platform === 'facebook' ? '#1877F2' :
+    platform === 'instagram' ? '#E4405F' : '#888'}20;
+  border: 1px solid ${({ platform }) => 
+    platform === 'twitter' ? '#1DA1F2' : 
+    platform === 'youtube' ? '#FF0000' :
+    platform === 'facebook' ? '#1877F2' :
+    platform === 'instagram' ? '#E4405F' : '#888'}40;
   border-radius: 4px;
-  color: ${({ platform, theme }) => 
-    platform === 'twitter' ? '#1DA1F2' : '#FF0000'};
+  color: ${({ platform }) => 
+    platform === 'twitter' ? '#1DA1F2' : 
+    platform === 'youtube' ? '#FF0000' :
+    platform === 'facebook' ? '#1877F2' :
+    platform === 'instagram' ? '#E4405F' : '#888'};
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
@@ -275,6 +292,12 @@ const URLInput = ({ onSubmit, isLoading }) => {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       return 'youtube';
     }
+    if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.com')) {
+      return 'facebook';
+    }
+    if (url.includes('instagram.com')) {
+      return 'instagram';
+    }
     return 'web';
   };
 
@@ -283,9 +306,9 @@ const URLInput = ({ onSubmit, isLoading }) => {
       const urlObj = new URL(url);
       const domain = urlObj.hostname.toLowerCase();
       
-      const allowedDomains = ['twitter.com', 'x.com', 'youtube.com', 'youtu.be'];
+      const allowedDomains = ['twitter.com', 'x.com', 'youtube.com', 'youtu.be', 'facebook.com', 'fb.watch', 'fb.com', 'instagram.com'];
       if (!allowedDomains.some(d => domain.includes(d))) {
-        return 'Only Twitter/X and YouTube URLs are supported';
+        return 'Only Twitter/X, YouTube, Facebook, and Instagram URLs are supported';
       }
       
       return null;
@@ -358,6 +381,10 @@ const URLInput = ({ onSubmit, isLoading }) => {
         return <FaTwitter />;
       case 'youtube':
         return <FaYoutube />;
+      case 'facebook':
+        return <FaFacebook />;
+      case 'instagram':
+        return <FaInstagram />;
       default:
         return <FaGlobe />;
     }
@@ -369,6 +396,10 @@ const URLInput = ({ onSubmit, isLoading }) => {
         return 'Twitter/X';
       case 'youtube':
         return 'YouTube';
+      case 'facebook':
+        return 'Facebook';
+      case 'instagram':
+        return 'Instagram';
       default:
         return 'Web';
     }
@@ -414,7 +445,7 @@ const URLInput = ({ onSubmit, isLoading }) => {
         <FormGroup>
           <Label>
             <FaLink /> Evidence URL
-            <Hint>Supported: Twitter/X, YouTube</Hint>
+            <Hint>Supported: Twitter/X, YouTube, Facebook, Instagram</Hint>
           </Label>
           <URLInputWrapper>
             <Input
@@ -466,6 +497,12 @@ const URLInput = ({ onSubmit, isLoading }) => {
               </PlatformTag>
               <PlatformTag platform="youtube">
                 <FaYoutube /> YouTube
+              </PlatformTag>
+              <PlatformTag platform="facebook">
+                <FaFacebook /> Facebook
+              </PlatformTag>
+              <PlatformTag platform="instagram">
+                <FaInstagram /> Instagram
               </PlatformTag>
             </PlatformTags>
           </SupportedPlatforms>
