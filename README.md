@@ -14,6 +14,10 @@ Unlike standard downloaders, FEAS maintains a legally admissible **Chain of Cust
 
 ## ✨ Key Features
 
+* **🔐 User Authentication**
+    * Secure login and registration system with JWT tokens.
+    * User profile management with editable information.
+    * Role-based access control for investigators.
 * **🌐 Universal Acquisition**
     * Capture videos and metadata from **Twitter (X)**, **YouTube**, and direct URLs.
     * Secure **Local File Upload** for existing evidence.
@@ -28,6 +32,10 @@ Unlike standard downloaders, FEAS maintains a legally admissible **Chain of Cust
     * Extracts EXIF data, video codecs, bitrates, duration, resolution, and platform-specific metadata.
     * Uses `ffmpeg` for video analysis and `exifread` for image metadata.
     * MIME type detection via `python-magic`.
+* **📊 Real-time Analytics Dashboard**
+    * Live statistics and metrics for all forensic operations.
+    * Period-based analytics (24h, 7d, 30d, 90d).
+    * Success/failure rate tracking and performance metrics.
 * **📄 Automated Reporting**
     * Generates professional **PDF Forensic Reports** containing all case details, hashes, and custody logs.
 * **⚡ Real-time Monitoring**
@@ -166,9 +174,11 @@ FEAS/
 │   ├── app/
 │   │   ├── api/v1/endpoints/  # REST API routes
 │   │   │   ├── jobs.py        # Job submission & monitoring
+│   │   │   ├── auth.py        # Authentication (login/register)
 │   │   │   ├── dashboard.py   # Analytics & statistics
 │   │   │   ├── profile.py     # User profile management
 │   │   │   ├── social.py      # Social media links
+│   │   │   ├── links.py       # Link management
 │   │   │   └── health.py      # Health check endpoint
 │   │   ├── core/              # Core utilities
 │   │   │   ├── config.py      # Pydantic settings
@@ -234,6 +244,10 @@ FEAS/
 │   │   │   ├── JobMonitorPage.jsx
 │   │   │   ├── EvidenceDetailPage.jsx
 │   │   │   ├── SettingsPage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── RegisterPage.jsx
+│   │   │   ├── ProfilePage.jsx
+│   │   │   ├── AnalyticsPage.jsx
 │   │   │   └── PlaceholderPage.jsx
 │   │   ├── services/          # API & utilities
 │   │   │   ├── api.js         # Axios instance
@@ -241,7 +255,8 @@ FEAS/
 │   │   │   └── theme.js       # Theme helpers
 │   │   ├── store/             # State management
 │   │   │   ├── jobStore.js    # Zustand job state
-│   │   │   └── themeStore.js  # Zustand theme state
+│   │   │   ├── themeStore.js  # Zustand theme state
+│   │   │   └── authStore.js   # Zustand auth state
 │   │   ├── styles/            # Global styles
 │   │   │   ├── GlobalStyles.js
 │   │   │   ├── theme.js       # Theme definitions
@@ -328,27 +343,37 @@ FEAS/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/jobs/url` | Submit URL for evidence acquisition (Twitter/X, YouTube) |
-| `POST` | `/jobs/upload` | Upload local file as evidence |
-| `GET` | `/jobs/{job_id}` | Get detailed job status and metadata |
-| `GET` | `/jobs/{job_id}/download` | Download acquired evidence file |
-| `POST` | `/jobs/{job_id}/verify` | Verify file integrity (SHA-256) |
-| `GET` | `/jobs/{job_id}/report` | Generate and download PDF forensic report |
-| `GET` | `/jobs/{job_id}/custody` | Retrieve chain of custody log |
+| `POST` | `/api/v1/jobs/url` | Submit URL for evidence acquisition (Twitter/X, YouTube) |
+| `POST` | `/api/v1/jobs/upload` | Upload local file as evidence |
+| `GET` | `/api/v1/jobs` | List all jobs |
+| `GET` | `/api/v1/jobs/{job_id}/status` | Get detailed job status |
+| `GET` | `/api/v1/jobs/{job_id}/details` | Get detailed job metadata and chain of custody |
+| `POST` | `/api/v1/jobs/{job_id}/verify` | Verify file integrity (SHA-256) |
+| `GET` | `/api/v1/jobs/{job_id}/report` | Generate and download PDF forensic report |
+| `GET` | `/api/v1/analytics` | Get analytics data (total jobs, completed, failed, etc.) |
+
+### Authentication
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/auth/register` | Register new user account |
+| `POST` | `/api/v1/auth/login` | Login and receive JWT token |
+| `GET` | `/api/v1/auth/me` | Get current authenticated user |
+| `POST` | `/api/v1/auth/logout` | Logout (client-side token removal) |
 
 ### Dashboard
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/dashboard/stats` | Get system statistics (total jobs, completed, failed, etc.) |
-| `GET` | `/dashboard/recent` | List recent jobs |
+| `GET` | `/api/v1/dashboard/cards` | Get dashboard statistics cards |
+| `GET` | `/api/v1/dashboard/activity` | Get recent chain of custody events |
 
 ### Profile
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/profile` | Get investigator profile |
-| `PUT` | `/profile` | Update profile information |
+| `GET` | `/api/v1/profile/` | Get user profile information |
+| `PATCH` | `/api/v1/profile/` | Update profile information |
 
 ### Social Links
 

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.db.session import get_db
 from app.models.sql_models import SocialLink
 
-router = APIRouter(prefix="/links", tags=["links"])
+router = APIRouter(prefix="/api/v1/links", tags=["links"])
 
 class LinkCreate(BaseModel):
     url: str

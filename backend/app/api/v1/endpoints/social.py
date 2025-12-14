@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.db.session import get_db
 from app.models.sql_models import SocialLink
 
-router = APIRouter(prefix="/social", tags=["social"])
+router = APIRouter(prefix="/api/v1/social", tags=["social"])
 
 class SocialCreate(BaseModel):
     platform: str

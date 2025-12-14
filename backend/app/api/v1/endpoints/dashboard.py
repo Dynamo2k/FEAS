@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from app.db.session import get_db
 from app.models.sql_models import Job, ChainOfCustody
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"]) 
+router = APIRouter(prefix="/api/v1/dashboard", tags=["dashboard"]) 
 
 @router.get("/cards", response_model=List[dict])
 async def get_cards(db: Session = Depends(get_db)):
