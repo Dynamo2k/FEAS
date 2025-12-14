@@ -65,7 +65,11 @@ class Settings(BaseSettings):
         "twitter.com",
         "x.com",
         "youtube.com",
-        "youtu.be"
+        "youtu.be",
+        "facebook.com",
+        "fb.watch",
+        "fb.com",
+        "instagram.com"
     ]
 
     ALLOWED_MIME_TYPES: List[str] = [
