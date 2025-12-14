@@ -5,9 +5,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# System deps
+# [REAL CODE FIX] Install system dependencies required for python-magic and ffmpeg
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential curl \
+    build-essential \
+    curl \
+    libmagic1 \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and install deps
