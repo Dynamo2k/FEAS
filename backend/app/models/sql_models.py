@@ -49,3 +49,22 @@ class ChainOfCustody(Base):
     hash_verification = Column(String, nullable=True)
 
     job = relationship("Job", back_populates="custody_logs")
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, default="Investigator")
+    email = Column(String, default="analyst@agency.gov")
+    role = Column(String, default="Senior Analyst")
+    bio = Column(String, default="Digital forensics specialist.")
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class SocialLink(Base):
+    __tablename__ = "social_links"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    platform = Column(String) # e.g., "twitter"
+    handle = Column(String)
+    url = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
