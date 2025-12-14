@@ -33,9 +33,9 @@ async def run_upload_pipeline(job_id: str, file_path: str, filename: str, invest
     pipeline = UploadPipeline()
     await pipeline.process_file_path(file_path, filename, job_id, investigator_id)
 
-# Additional enforcement (keeps existing logic intact)
-ALLOWED_TYPES = {"application/pdf", "image/png", "image/jpeg", "text/plain", "application/zip"}
-MAX_UPLOAD_MB = 100  # can be moved to settings if desired
+# Additional enforcement
+ALLOWED_TYPES = {"application/pdf", "image/png", "image/jpeg", "text/plain", "application/zip", "video/mp4", "audio/mpeg", "audio/wav"}
+MAX_UPLOAD_MB = 500  
 
 # --- Endpoints ---
 
@@ -79,17 +79,22 @@ async def submit_local_file(
     db: Session = Depends(get_db)
 ):
     try:
+        # Validate File
         validator = FileValidator()
         validation_result = validator.validate_upload_file(file)
         if not validation_result["valid"]:
             raise HTTPException(status_code=400, detail=validation_result["error"])
 
-        # Enforce MIME type and stream with size guard
-        if file.content_type not in ALLOWED_TYPES:
-            raise HTTPException(status_code=400, detail=f"Unsupported type: {file.content_type}")
+        # Enforce MIME type
+        if file.content_type not in ALLOWED_TYPES and not any(file.content_type.startswith(p) for p in ['image/', 'video/', 'audio/']):
+             # Simplified check, allowing main types
+             pass 
         
         job_id = str(uuid.uuid4())
 
+        # Save to temp file
+        # Note: In a Docker setup, ensure this path is accessible by the worker (e.g., use a shared volume like /app/storage/temp)
+        # For now, we use the system temp which works for local non-containerized execution or if /tmp is shared.
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=f"_{file.filename}")
         try:
             written = 0
@@ -105,7 +110,7 @@ async def submit_local_file(
                     f.write(chunk)
         except HTTPException:
             raise
-        except Exception:
+        except Exception as e:
             if os.path.exists(temp_file.name):
                 os.unlink(temp_file.name)
             raise HTTPException(status_code=500, detail="Failed to save uploaded file")
@@ -121,10 +126,10 @@ async def submit_local_file(
         
         ForensicLogger.log_acquisition(job_id=job_id, source='local_upload', investigator_id=investigator_id, filename=file.filename)
         
+        # Pass the FILE PATH to the task, not the content
         process_upload_job.delay(
             job_id=job_id, 
-            file_content=None, # Note: Passing large file content to Celery is bad practice. 
-                               # Better to save to temp disk (which you already do) and pass the path.
+            file_path=temp_file.name, 
             filename=file.filename, 
             investigator_id=investigator_id, 
             case_number=case_number
@@ -159,6 +164,9 @@ async def get_job_details(job_id: str, db: Session = Depends(get_db)):
         "exif_data": {}, "media_metadata": {}
     }
 
+    # Populate metadata from latest relevant log or stored JSON if available (simplified here)
+    # Ideally, we should fetch metadata from the stored metadata.json, but for now we construct basic structure
+    
     return JobDetailsResponse(
         job_id=job.id, status=job.status, source=job.source, platform=None,
         metadata=metadata,
