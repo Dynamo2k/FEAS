@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import app.workers.celery_app
 
 from app.api.v1.endpoints.links import router as links_router
 from app.api.v1.endpoints.social import router as social_router
