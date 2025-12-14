@@ -225,10 +225,26 @@ const DocsPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [copiedIndex, setCopiedIndex] = useState(null);
 
-  const copyToClipboard = (text, index) => {
-    navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
+  const copyToClipboard = async (text, index) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      // Fallback for browsers without clipboard API support
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 2000);
+      } catch (fallbackErr) {
+        console.error('Failed to copy text:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   const endpoints = [
@@ -367,7 +383,7 @@ const DocsPage = () => {
               <FaCode /> API Endpoints
             </SectionTitle>
             <Text>
-              Base URL: <code>http://localhost:8000/api/v1</code>
+              Base URL: <code>{'{YOUR_API_URL}'}/api/v1</code> (default: <code>http://localhost:8000/api/v1</code>)
             </Text>
             
             {endpoints.map((ep, index) => (
@@ -386,14 +402,14 @@ const DocsPage = () => {
               <FaCode /> Example: Upload File
             </SectionTitle>
             <CodeBlock>
-              <CopyButton onClick={() => copyToClipboard(`curl -X POST "http://localhost:8000/api/v1/jobs/upload" \\
+              <CopyButton onClick={() => copyToClipboard(`curl -X POST "{YOUR_API_URL}/api/v1/jobs/upload" \\
   -H "Authorization: Bearer <token>" \\
   -F "file=@evidence.jpg" \\
   -F "investigator_id=INV001" \\
   -F "case_number=CASE-2024-001"`, 1)}>
                 {copiedIndex === 1 ? <><FaCheck /> Copied</> : <><FaCopy /> Copy</>}
               </CopyButton>
-              <pre>{`curl -X POST "http://localhost:8000/api/v1/jobs/upload" \\
+              <pre>{`curl -X POST "{YOUR_API_URL}/api/v1/jobs/upload" \\
   -H "Authorization: Bearer <token>" \\
   -F "file=@evidence.jpg" \\
   -F "investigator_id=INV001" \\
@@ -417,13 +433,13 @@ const DocsPage = () => {
               <FaCode /> Example: URL Acquisition
             </SectionTitle>
             <CodeBlock>
-              <CopyButton onClick={() => copyToClipboard(`curl -X POST "http://localhost:8000/api/v1/jobs/url" \\
+              <CopyButton onClick={() => copyToClipboard(`curl -X POST "{YOUR_API_URL}/api/v1/jobs/url" \\
   -H "Authorization: Bearer <token>" \\
   -H "Content-Type: application/json" \\
   -d '{"url": "https://twitter.com/user/status/123", "investigator_id": "INV001"}'`, 2)}>
                 {copiedIndex === 2 ? <><FaCheck /> Copied</> : <><FaCopy /> Copy</>}
               </CopyButton>
-              <pre>{`curl -X POST "http://localhost:8000/api/v1/jobs/url" \\
+              <pre>{`curl -X POST "{YOUR_API_URL}/api/v1/jobs/url" \\
   -H "Authorization: Bearer <token>" \\
   -H "Content-Type: application/json" \\
   -d '{"url": "https://twitter.com/user/status/123", "investigator_id": "INV001"}'`}</pre>

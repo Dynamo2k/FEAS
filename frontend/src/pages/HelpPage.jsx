@@ -185,7 +185,7 @@ const HelpPage = () => {
   const faqs = [
     {
       question: "What file types are supported for upload?",
-      answer: "FEAS supports a wide range of forensic evidence files including images (JPEG, PNG, HEIC), videos (MP4, MOV, AVI), audio files (MP3, WAV), and documents (PDF). The maximum file size is 500MB."
+      answer: "FEAS supports a wide range of forensic evidence files including images (JPEG, PNG, HEIC/HEIF), videos (MP4, MOV, AVI), audio files (MP3, WAV), and documents (PDF). The maximum file size is 500MB."
     },
     {
       question: "How does URL acquisition work?",

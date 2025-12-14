@@ -8,6 +8,7 @@ import tempfile
 from datetime import datetime, timedelta
 import logging
 from sqlalchemy.orm import Session
+from kombu.exceptions import OperationalError as KombuOperationalError
 
 from app.db.session import get_db
 from app.models.sql_models import Job, ChainOfCustody
@@ -65,7 +66,7 @@ async def submit_url_job(
                 investigator_id=job_data.investigator_id, 
                 case_number=job_data.case_number
             )
-        except Exception as celery_error:
+        except (KombuOperationalError, ConnectionError, OSError) as celery_error:
             # Update job status to failed if Celery/Redis is not available
             logger.error(f"Celery task submission failed: {str(celery_error)}")
             job.status = "failed"
@@ -156,7 +157,7 @@ async def submit_local_file(
                 investigator_id=investigator_id, 
                 case_number=case_number
             )
-        except Exception as celery_error:
+        except (KombuOperationalError, ConnectionError, OSError) as celery_error:
             # Update job status to failed if Celery/Redis is not available
             logger.error(f"Celery task submission failed: {str(celery_error)}")
             job.status = "failed"
