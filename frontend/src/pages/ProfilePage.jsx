@@ -322,9 +322,8 @@ const ProfilePage = () => {
               type="email"
               name="email"
               value={formData.email}
-              onChange={handleChange}
-              disabled={!editing}
-              required
+              disabled={true}
+              title="Email cannot be changed"
             />
           </InputGroup>
 
