@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, JSON, ForeignKey, Integer
+from sqlalchemy import Column, String, Float, DateTime, JSON, ForeignKey, Integer, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -50,15 +50,32 @@ class ChainOfCustody(Base):
 
     job = relationship("Job", back_populates="custody_logs")
 
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship to profile
+    profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+
 class UserProfile(Base):
     __tablename__ = "user_profiles"
     
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     name = Column(String, default="Investigator")
-    email = Column(String, default="analyst@agency.gov")
     role = Column(String, default="Senior Analyst")
     bio = Column(String, default="Digital forensics specialist.")
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship back to user
+    user = relationship("User", back_populates="profile")
 
 class SocialLink(Base):
     __tablename__ = "social_links"
