@@ -84,6 +84,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_PER_MINUTE: int = 60
     LOG_LEVEL: str = "INFO"
     CHAIN_OF_CUSTODY_LOG_PATH: str = "./chain_of_custody.log"
+    
+    # --- Default Admin Credentials ---
+    DEFAULT_ADMIN_EMAIL: str = "admin@feas.local"
+    DEFAULT_ADMIN_PASSWORD: str = "admin123"  # Will be hashed on first run
 
     model_config = {
         "env_file": ".env",
