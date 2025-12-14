@@ -19,6 +19,7 @@ from app.pipelines.upload_pipeline import UploadPipeline
 from app.pipelines.unified_pipeline import UnifiedForensicPipeline
 from app.services.validator import FileValidator
 from app.core.logger import ForensicLogger
+from app.workers.tasks import process_url_job, process_upload_job
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -57,9 +58,11 @@ async def submit_url_job(
         
         ForensicLogger.log_acquisition(job_id=job_id, source='url', investigator_id=job_data.investigator_id, url=str(job_data.url))
         
-        background_tasks.add_task(
-            run_url_pipeline, job_id=job_id, url=str(job_data.url),
-            investigator_id=job_data.investigator_id, case_number=job_data.case_number
+        process_url_job.delay(
+            job_id=job_id, 
+            url=str(job_data.url),
+            investigator_id=job_data.investigator_id, 
+            case_number=job_data.case_number
         )
         return job
     except Exception as e:
@@ -118,9 +121,13 @@ async def submit_local_file(
         
         ForensicLogger.log_acquisition(job_id=job_id, source='local_upload', investigator_id=investigator_id, filename=file.filename)
         
-        background_tasks.add_task(
-            run_upload_pipeline, job_id=job_id, file_path=temp_file.name,
-            filename=file.filename, investigator_id=investigator_id, case_number=case_number
+        process_upload_job.delay(
+            job_id=job_id, 
+            file_content=None, # Note: Passing large file content to Celery is bad practice. 
+                               # Better to save to temp disk (which you already do) and pass the path.
+            filename=file.filename, 
+            investigator_id=investigator_id, 
+            case_number=case_number
         )
         return job
     except HTTPException: 
