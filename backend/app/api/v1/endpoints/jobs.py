@@ -22,7 +22,7 @@ from app.core.logger import ForensicLogger
 from app.workers.tasks import process_url_job, process_upload_job
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(prefix="/api/v1", tags=["jobs"])
 
 # --- Background Helpers ---
 async def run_url_pipeline(job_id: str, url: str, investigator_id: str, case_number: str = None):

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.db.session import get_db
 from app.models.sql_models import UserProfile
 
-router = APIRouter(prefix="/profile", tags=["profile"])
+router = APIRouter(prefix="/api/v1/profile", tags=["profile"])
 
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
