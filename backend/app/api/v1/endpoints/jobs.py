@@ -95,7 +95,16 @@ async def submit_local_file(
         # Save to temp file
         # Note: In a Docker setup, ensure this path is accessible by the worker (e.g., use a shared volume like /app/storage/temp)
         # For now, we use the system temp which works for local non-containerized execution or if /tmp is shared.
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=f"_{file.filename}")
+        # NEW CODE (Works in Docker)
+# Ensure a temp directory exists within your mounted storage
+        temp_dir = "/app/storage/temp_uploads"
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        temp_file = tempfile.NamedTemporaryFile(
+            delete=False, 
+            dir=temp_dir,  # <--- Force save to shared volume
+            suffix=f"_{file.filename}"
+        )
         try:
             written = 0
             with open(temp_file.name, 'wb') as f:
