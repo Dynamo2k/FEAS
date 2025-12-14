@@ -14,10 +14,15 @@ Unlike standard downloaders, FEAS maintains a legally admissible **Chain of Cust
 
 ## ✨ Key Features
 
-* **🔐 User Authentication**
-    * Secure login and registration system with JWT tokens.
-    * User profile management with editable information.
-    * Role-based access control for investigators.
+* **🔐 Secure User Authentication**
+    * **NEW:** Automatic database initialization on first run
+    * **NEW:** Default admin user created from environment variables
+    * **NEW:** Bcrypt password hashing for maximum security
+    * JWT token-based authentication with configurable expiration
+    * User registration and login system
+    * User profile management with editable information
+    * Role-based access control (Admin vs Analyst roles)
+    * **📚 See [AUTHENTICATION_GUIDE.md](AUTHENTICATION_GUIDE.md) for details**
 * **🌐 Universal Acquisition**
     * Capture videos and metadata from **Twitter (X)**, **YouTube**, and direct URLs.
     * Secure **Local File Upload** for existing evidence.
@@ -100,6 +105,10 @@ Supported file types:
 * **Docker & Docker Compose** (Recommended)
 * **OR** Python 3.11+ and Node.js 18+ (for manual setup)
 
+### Quick Start Guide
+
+**📚 For detailed setup instructions, see [QUICKSTART.md](QUICKSTART.md)**
+
 ### Option 1: Quick Start (Docker) 🐳
 
 1.  **Clone the repository**
@@ -111,8 +120,10 @@ Supported file types:
 2.  **Configure Environment**
     ```bash
     cd backend
-    # Create .env file with your configuration (optional, defaults are provided)
-    # Edit database credentials, Redis URL, storage paths as needed
+    cp .env.example .env
+    # Edit .env and change default admin credentials!
+    # DEFAULT_ADMIN_EMAIL=admin@feas.local
+    # DEFAULT_ADMIN_PASSWORD=change-this-password
     ```
 
 3.  **Launch All Services**
@@ -132,6 +143,11 @@ Supported file types:
     - Frontend Dashboard: `http://localhost:3000`
     - API Documentation: `http://localhost:8000/docs`
     - API Health Check: `http://localhost:8000/health`
+    
+5.  **Login with Default Admin**
+    - Email: `admin@feas.local` (or your configured email)
+    - Password: `admin123` (or your configured password)
+    - **⚠️ Change the password immediately after first login!**
 
 ### Option 2: Manual Installation 🛠️
 
@@ -142,18 +158,27 @@ python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
 
+# Create .env file
+cp .env.example .env
+# Edit .env with your configuration
+
+# For quick testing with SQLite:
+export USE_SQLITE=true  # or set USE_SQLITE=true in .env
+
 # Install system dependencies (Linux/Mac)
 # ffmpeg, libmagic1 are required
 sudo apt-get install ffmpeg libmagic1  # Ubuntu/Debian
 # brew install ffmpeg libmagic  # macOS
 
-# Configure PostgreSQL and Redis, then run:
+# Start the backend (database tables created automatically on first run)
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # In separate terminals, start Celery:
 celery -A app.workers.celery_app.celery worker --loglevel=info
 celery -A app.workers.celery_app.celery beat --loglevel=info
 ```
+
+**📚 For PostgreSQL setup, see [POSTGRESQL_SETUP.md](POSTGRESQL_SETUP.md)**
 
 #### Frontend Setup
 
