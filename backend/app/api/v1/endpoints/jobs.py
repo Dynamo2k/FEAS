@@ -31,15 +31,33 @@ if settings.USE_CELERY:
     from app.workers.tasks import process_url_job, process_upload_job
 
 # --- Background Helpers for non-Celery mode ---
+def _run_async_in_thread(coro):
+    """Helper to run async code in a background thread safely"""
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # If there's already an event loop running, create a new one for the thread
+            new_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(new_loop)
+            try:
+                return new_loop.run_until_complete(coro)
+            finally:
+                new_loop.close()
+        else:
+            return loop.run_until_complete(coro)
+    except RuntimeError:
+        # No event loop exists, create a new one
+        return asyncio.run(coro)
+
 def run_url_pipeline_sync(job_id: str, url: str, investigator_id: str, case_number: str = None):
     """Synchronous wrapper for URL pipeline (runs in background thread)"""
     pipeline = URLPipeline()
-    asyncio.run(pipeline.process_url(url, job_id, investigator_id, case_number))
+    _run_async_in_thread(pipeline.process_url(url, job_id, investigator_id, case_number))
 
 def run_upload_pipeline_sync(job_id: str, file_path: str, filename: str, investigator_id: str, case_number: str = None):
     """Synchronous wrapper for upload pipeline (runs in background thread)"""
     pipeline = UploadPipeline()
-    asyncio.run(pipeline.process_file_path(file_path, filename, job_id, investigator_id))
+    _run_async_in_thread(pipeline.process_file_path(file_path, filename, job_id, investigator_id))
 
 # Additional enforcement
 ALLOWED_TYPES = {"application/pdf", "image/png", "image/jpeg", "text/plain", "application/zip", "video/mp4", "audio/mpeg", "audio/wav"}
