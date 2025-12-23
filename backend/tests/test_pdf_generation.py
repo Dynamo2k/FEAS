@@ -24,8 +24,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def test_pdf_generation():
     """Test PDF generation with sample data"""
-    from app.services.pdf_generator import PDFReportGenerator
-    from app.models.schemas import JobDetailsResponse, JobStatus
+    try:
+        from app.services.pdf_generator import PDFReportGenerator
+        from app.models.schemas import JobDetailsResponse, JobStatus
+    except ImportError as e:
+        raise ImportError(
+            f"Failed to import required modules: {e}. "
+            "Make sure you're running from the backend directory with dependencies installed."
+        ) from e
     
     # Create sample job details
     sample_details = JobDetailsResponse(
@@ -114,7 +120,13 @@ def test_pdf_generation():
 
 def test_verification_report():
     """Test verification report generation"""
-    from app.services.pdf_generator import PDFReportGenerator
+    try:
+        from app.services.pdf_generator import PDFReportGenerator
+    except ImportError as e:
+        raise ImportError(
+            f"Failed to import PDFReportGenerator: {e}. "
+            "Make sure you're running from the backend directory with dependencies installed."
+        ) from e
     
     verification_result = {
         "matches": True,
