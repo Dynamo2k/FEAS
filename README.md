@@ -615,6 +615,7 @@ A huge thanks to the team that made this project possible:
   * 👨‍💻 **Muhammad Usman** - [Prof.Paradox](https://github.com/ProfParadox)
   * 👩‍💻 **Hoor ul Ain** - [hurrainjhl](https://github.com/hurrainjhl)
   * 👩‍💻 **Umae Habiba** - [ZUNATIC](https://github.com/ZUNATIC)
+  * 👨‍💻 **Bilal Badar** - Team Member
 
 -----
 
